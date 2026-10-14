@@ -1,4 +1,7 @@
-# Публикация пакета в npm при выпуске GitHub Release.
+# Публикация пакета в npm при выпуске GitHub Release через Trusted Publishing (OIDC).
+# Требуется настройка на npmjs.com: пакет → Settings → Trusted Publisher:
+#   owner: gracheff, repo: n8n-nodes-yandex-dialogs, workflow: publish.yml
+# Токен NPM_TOKEN не используется — аутентификация по OIDC.
 # Запуск: создайте Release с тегом вида v1.0.4 (тег должен совпадать с version в package.json).
 name: Publish to npm
 
@@ -8,7 +11,7 @@ on:
 
 permissions:
   contents: read
-  # Для npm provenance (подтверждение сборки на GitHub Actions)
+  # Обязательно для OIDC-токена (trusted publishing + provenance)
   id-token: write
 
 jobs:
@@ -21,6 +24,11 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
+
+      # Trusted publishing поддерживается только npm >= 11.5.1,
+      # а setup-node c node 22 ставит npm 10.x — обновляем npm.
+      - name: Обновление npm до версии с поддержкой trusted publishing
+        run: npm install -g npm@^11
 
       - name: Проверка соответствия тега версии пакета
         run: |
@@ -43,7 +51,7 @@ jobs:
       - name: Сборка
         run: npm run build
 
+      # --provenance включает OIDC: без NODE_AUTH_TOKEN npm проходит
+      # аутентификацию как trusted publisher из конфигурации на npmjs.com
       - name: Публикация
         run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
