@@ -1,0 +1,32 @@
+# CI: проверка на каждый push в main и каждый pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: Линт
+        run: npm run lint
+
+      - name: Тесты
+        run: npm test
+
+      - name: Компиляция (strict)
+        run: npx tsc
+
+      - name: Сборка
+        run: npm run build

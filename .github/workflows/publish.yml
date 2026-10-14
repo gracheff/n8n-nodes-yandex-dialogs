@@ -1,0 +1,49 @@
+# Публикация пакета в npm при выпуске GitHub Release.
+# Запуск: создайте Release с тегом вида v1.0.4 (тег должен совпадать с version в package.json).
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  # Для npm provenance (подтверждение сборки на GitHub Actions)
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+
+      - name: Проверка соответствия тега версии пакета
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Тег $GITHUB_REF_NAME не совпадает с version в package.json ($PKG_VERSION)"
+            exit 1
+          fi
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: Тесты
+        run: npm test
+
+      - name: Линт
+        run: npm run lint
+
+      - name: Сборка
+        run: npm run build
+
+      - name: Публикация
+        run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
