@@ -37,8 +37,5 @@ Thumbs.db
 AGENTS.md
 .ai/
 
-# Assets (используются только в README; в git добавлять по решению)
-assets/
-
 # n8n
 .n8n/
