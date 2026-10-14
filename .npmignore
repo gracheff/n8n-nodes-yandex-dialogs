@@ -1,0 +1,37 @@
+# Src
+nodes/**/*.ts
+credentials/**/*.ts
+utils/**/*.ts
+
+# Dev config
+.vscode/
+.idea/
+.eslintrc.js
+.prettierrc
+tsconfig.json
+gulpfile.js
+
+# Tests
+test/
+tests/
+*.test.ts
+*.spec.ts
+coverage/
+
+# Git
+.git/
+.gitignore
+.github/
+
+# AI agents
+AGENTS.md
+.ai/
+
+# Etc
+*.log
+*.md
+!README.md
+.DS_Store
+scripts/
+assets/
+.npmrc
