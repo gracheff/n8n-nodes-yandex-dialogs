@@ -14,19 +14,15 @@ jobs:
     steps:
       - name: Получить и декодировать OIDC-токен
         run: |
-          TOKEN=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm_registry" | node -e "
-              let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{
-                console.log(JSON.parse(d).value);
-              });
-            ")
-          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | awk '{pad=4-(length%4); if(pad<4) printf "%s%*s", $0, pad, ""; else print $0}' | base64 -d)
-          echo "=== Claims OIDC-токена (audience npm_registry) ==="
-          echo "$PAYLOAD" | node -e "
+          curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm_registry" > /tmp/oidc.json
+          cat /tmp/oidc.json | node -e "
             let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{
-              const c = JSON.parse(d);
+              const token = JSON.parse(d).value;
+              const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
+              console.log('=== Claims OIDC-токена (audience npm_registry) ===');
               for (const k of ['iss','aud','repository_owner','repository','ref','workflow','workflow_ref','environment','job_workflow_ref','repository_owner_id','repository_id','run_id','sub']) {
-                console.log(k + ': ' + JSON.stringify(c[k]));
+                console.log(k + ': ' + JSON.stringify(payload[k]));
               }
             });
           "
