@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-yandex-dialogs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "n8n community node for Yandex Dialogs (Alice voice assistant)",
   "keywords": [
     "n8n-community-node-package",
@@ -11,6 +11,14 @@
     "webhook"
   ],
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gracheff/n8n-nodes-yandex-dialogs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gracheff/n8n-nodes-yandex-dialogs/issues"
+  },
+  "homepage": "https://github.com/gracheff/n8n-nodes-yandex-dialogs#readme",
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && npm run tsc && npm run copy:icons",
